@@ -25,6 +25,12 @@ cp $DATADOG_CONF.example $DATADOG_CONF
 sed -i -e"s|^.*confd_path:.*$|confd_path: $DD_CONF_DIR/conf.d|" $DATADOG_CONF
 sed -i -e"s|^.*additional_checksd:.*$|additional_checksd: $DD_DIR/checks.d|" $DATADOG_CONF
 
+# Disabling syslogging.
+echo "Adjusting log levels on $DATADOG_CONF"
+sed -i -e"s|^.*log_to_console:.*$|log_to_console: no|" $DATADOG_CONF
+sed -i -e"s|^.*log_to_syslog:.*$|log_to_syslog: no|" $DATADOG_CONF
+sed -i -e"s|^.*disable_file_logging:.*$|disable_file_logging: yes|" $DATADOG_CONF
+
 # Add tags to the config file
 DYNOHOST="$( hostname )"
 DYNOTYPE=${DYNO%%.*}
