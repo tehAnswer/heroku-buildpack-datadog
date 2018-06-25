@@ -17,6 +17,7 @@ export PKG_CONFIG_PATH="$APT_DIR/usr/lib/x86_64-linux-gnu/pkgconfig:$APT_DIR/usr
 
 # Set Datadog configs
 export DD_LOG_FILE="$DD_LOG_DIR/datadog.log"
+DD_APM_LOG="$DD_LOG_DIR/datadog-apm.log"
 
 # Move Datadog config files into place
 cp $DATADOG_CONF.example $DATADOG_CONF
@@ -30,6 +31,16 @@ echo "Adjusting log levels on $DATADOG_CONF"
 sed -i -e"s|^.*log_to_console:.*$|log_to_console: no|" $DATADOG_CONF
 sed -i -e"s|^.*log_to_syslog:.*$|log_to_syslog: no|" $DATADOG_CONF
 sed -i -e"s|^.*disable_file_logging:.*$|disable_file_logging: yes|" $DATADOG_CONF
+
+# Include application's datadog configs
+APP_DATADOG_CONF_DIR="/app/datadog/conf.d"
+
+for file in "$APP_DATADOG_CONF_DIR"/*.yaml; do
+  filename=$(basename -- "$file")
+  filename="${filename%.*}"
+  mkdir -p "$DD_CONF_DIR/conf.d/${filename}.d"
+  cp $file "$DD_CONF_DIR/conf.d/${filename}.d/conf.yaml"
+done
 
 # Add tags to the config file
 DYNOHOST="$( hostname )"
@@ -50,6 +61,9 @@ fi
 
 # Inject tags after example tags.
 sed -i "s/^#   - role:database$/#   - role:database\n$TAGS/" $DATADOG_CONF
+
+# Uncomment APM configs and add the log file location.
+# sed -i -e"s|^# apm_config:$|apm_config:\n    log_file: $DD_APM_LOG|" $DATADOG_CONF
 
 # For a list of env vars to override datadog.yaml, see:
 # https://github.com/DataDog/datadog-agent/blob/master/pkg/config/config.go#L145
@@ -77,6 +91,7 @@ else
   # Generate a warning about DD_HOSTNAME deprecation.
   echo "WARNING: DD_HOSTNAME is deprecated. Setting this environment variable may result in metrics errors. To remove it, run: heroku config:unset DD_HOSTNAME"
 fi
+
 
 if [ -n "$DISABLE_DATADOG_AGENT" ]; then
   echo "The Datadog Agent has been disabled. Unset the DISABLE_DATADOG_AGENT or set missing environment variables."

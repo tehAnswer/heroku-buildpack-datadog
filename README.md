@@ -5,7 +5,7 @@ A [Heroku buildpack](https://devcenter.heroku.com/articles/buildpacks) to add [D
 
 ## Usage
 
-This buildpack installs the Datadog Agent in your Heroku Dyno to collect system metrics, custom application metrics and traces. To collect custom application metrics or traces, include the language appropriate [DogStatsD or Datadog APM library](http://docs.datadoghq.com/libraries/) in your application.
+This buildpack installs the Datadog Agent in your Heroku Dyno to collect system metrics, custom application metrics and traces. To collect custom application metrics or traces, include the language appropriate [DogStatsD or Datadog APM library](http://docs.datadoghq.com/libraries/) in your application. *Note*: Heroku buildpacks cannot be used with Docker images. To build a Docker image with Datadog, reference the [Datadog Agent docker files](https://github.com/DataDog/datadog-agent/tree/master/Dockerfiles).
 
 ## Installation
 
@@ -52,6 +52,8 @@ In addition to the environment variables shown above, there are a number of othe
 | `DD_SERVICE_ENV` | *Optional.* The Datadog Agent automatically tries to identify your environment by searching for a tag in the form `env:<environment name>`. For more information, see the [Datadog Tracing environments page](https://docs.datadoghq.com/tracing/environments/). |
 
 For additional documentation, refer to the [Datadog Heroku buildpack documentation](https://docs.datadoghq.com/agent/basic_agent_usage/heroku/) and the [Datadog Agent documentation](https://docs.datadoghq.com/agent/).
+
+You can also provide additional configurations by including `*.yaml` files inside `datadog/conf.d` directory in root of your application.
 
 ## Hostname
 
